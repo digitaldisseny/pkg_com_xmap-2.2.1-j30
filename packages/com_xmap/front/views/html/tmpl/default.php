@@ -15,9 +15,9 @@ JHtml::addIncludePath(JPATH_COMPONENT.DS.'helpers');
 $params = $this->item->params;
 
 if ($this->displayer->canEdit) {
-	JHTML::_('behavior.mootools');
+	JHTML::_('behavior.framework');
 	$live_site = JURI::root();
-	$ajaxurl = "{$live_site}index.php?option=com_xmap&format=json&task=ajax.editElement&action=toggleElement&".JUtility::getToken().'=1';
+	$ajaxurl = "{$live_site}index.php?option=com_xmap&format=json&task=ajax.editElement&action=toggleElement&".JSession::getFormToken().'=1';
 
 	$css = '.xmapexcl img{ border:0px; }'."\n";
 	$css .= '.xmapexcloff { text-decoration:line-through; }';

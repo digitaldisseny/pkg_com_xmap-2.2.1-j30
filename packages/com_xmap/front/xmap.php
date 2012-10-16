@@ -14,6 +14,6 @@ jimport('joomla.application.component.controller');
 
 require_once(JPATH_COMPONENT.DS.'displayer.php');
 
-$controller = JController::getInstance('Xmap');
+$controller = JControllerLegacy::getInstance('Xmap');
 $controller->execute(JRequest::getVar('task'));
 $controller->redirect();

@@ -69,7 +69,7 @@ class XmapModelSitemap extends JModelItem
         // Initialize variables.
         $db = $this->getDbo();
         $pk = (!empty($pk)) ? $pk : (int) $this->getState('sitemap.id');
-        
+
         // If not sitemap specified, select the default one
         if (!$pk) {
             $query = $db->getQuery(true);
@@ -100,7 +100,7 @@ class XmapModelSitemap extends JModelItem
                 // Filter by access level.
                 if ($access = $this->getState('filter.access')) {
                     $user = JFactory::getUser();
-                    $groups = implode(',', $user->authorisedLevels());
+                    $groups = implode(',', $user->getAuthorisedViewLevels());
                     $query->where('a.access IN (' . $groups . ')');
                 }
 
@@ -123,13 +123,13 @@ class XmapModelSitemap extends JModelItem
 
                 // Convert parameter fields to objects.
                 $registry = new JRegistry('_default');
-                $registry->loadJSON($data->attribs);
+                $registry->loadString($data->attribs);
                 $data->params = clone $this->getState('params');
                 $data->params->merge($registry);
 
                 // Convert the selections field to an array.
                 $registry = new JRegistry('_default');
-                $registry->loadJSON($data->selections);
+                $registry->loadString($data->selections);
                 $data->selections = $registry->toArray();
 
                 // Compute access permissions.
@@ -249,7 +249,7 @@ class XmapModelSitemap extends JModelItem
         $items = $this->getSitemapItems($view);
         $db = JFactory::getDBO();
         $pk = (int) $this->getState('sitemap.id');
-        
+
         $isNew = false;
         if (empty($items[$view][$itemid][$uid])) {
             $items[$view][$itemid][$uid] = array();

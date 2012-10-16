@@ -18,7 +18,7 @@ jimport('joomla.application.component.view');
  * @subpackage	com_xmap
  * @since		2.0
  */
-class XmapViewXml extends JView
+class XmapViewXml extends JViewLegacy
 {
 
     protected $state;
@@ -38,7 +38,7 @@ class XmapViewXml extends JView
         $this->item = $this->get('Item');
         $this->state = $this->get('State');
 	    $this->canEdit = JFactory::getUser()->authorise('core.admin', 'com_xmap');
-	    
+
 	    // For now, news sitemaps are not editable
 	    $this->canEdit = $this->canEdit && !$isNewsSitemap;
 
@@ -91,7 +91,7 @@ class XmapViewXml extends JView
         $this->displayer = new XmapXmlDisplayer($params, $this->item);
 
         $this->displayer->setJView($this);
-        
+
         $this->displayer->isNews = $isNewsSitemap;
         $this->displayer->canEdit = $this->canEdit;
 

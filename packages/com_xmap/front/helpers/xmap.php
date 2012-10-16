@@ -49,7 +49,7 @@ class XmapHelper
 
             // Filter over authorized access levels and publishing state.
             $query->where('n.published = 1');
-            $query->where('n.access IN (' . implode(',', (array) $user->authorisedLevels()) . ')');
+            $query->where('n.access IN (' . implode(',', (array) $user->getAuthorisedViewLevels()) . ')');
 
             // Filter by language
             if ($app->getLanguageFilter()) {
@@ -133,7 +133,7 @@ class XmapHelper
         foreach ($extensions as $element => $extension) {
             if (file_exists(JPATH_PLUGINS . DS . $extension->folder . DS . $element. DS. $element . '.php')) {
                 require_once(JPATH_PLUGINS . DS . $extension->folder . DS . $element. DS. $element . '.php');
-                $params = new JParameter($extension->params);
+                $params = new JRegistry($extension->params);
                 $extension->params = $params->toArray();
                 $list[$element] = $extension;
             }
