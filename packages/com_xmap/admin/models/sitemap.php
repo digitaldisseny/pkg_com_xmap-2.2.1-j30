@@ -33,7 +33,7 @@ class XmapModelSitemap extends JModelAdmin
         $this->_item = 'sitemap';
         $this->_option = 'com_xmap';
     }
-    
+
     /**
      * Method to auto-populate the model state.
      */
@@ -102,7 +102,7 @@ class XmapModelSitemap extends JModelAdmin
 
         // Convert the params field to an array.
         $registry = new JRegistry;
-        $registry->loadJSON($table->attribs);
+        $registry->loadString($table->attribs);
         $value->attribs = $registry->toArray();
 
         return $value;
@@ -139,7 +139,7 @@ class XmapModelSitemap extends JModelAdmin
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState('com_xmap.edit.sitemap.data', array());
 
-        
+
         return $data;
     }
 
@@ -222,7 +222,7 @@ class XmapModelSitemap extends JModelAdmin
         // TODO.
     }
 
-    
+
     function _orderConditions($table = null)
     {
         $condition = array();
@@ -241,14 +241,14 @@ class XmapModelSitemap extends JModelAdmin
             }
             $table->is_default = 1;
             $table->store();
-            
+
             // Clean the cache.
             $cache = JFactory::getCache('com_xmap');
             $cache->clean();
             return true;
         }
     }
-    
+
     /**
      * Override to avoid warnings
      *

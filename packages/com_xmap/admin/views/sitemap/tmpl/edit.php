@@ -29,7 +29,7 @@ JHtml::_('behavior.formvalidation');
 
 <form action="<?php JRoute::_('index.php?option=com_xmap'); ?>" method="post" name="adminForm" id="item-form" class="form-validate">
 
-    <div class="width-60 fltlft">
+    <div class="fltlft">
         <fieldset class="adminform">
             <legend><?php echo JText::_('Xmap_Sitemap_Details_Fieldset'); ?></legend>
 <?php echo $this->form->getLabel('title'); ?>
@@ -51,7 +51,7 @@ JHtml::_('behavior.formvalidation');
         </fieldset>
     </div>
 
-    <div class="width-40" style="float:left">
+    <div class="" style="float:left">
 <?php echo JHtml::_('sliders.start', 'xmap-sliders-' . $this->item->id, array('useCookie' => 1)); ?>
         <?php echo JHtml::_('sliders.panel', JText::_('XMAP_FIELDSET_MENUS'), 'menus-details'); ?>
         <?php echo $this->form->getInput('selections'); ?>

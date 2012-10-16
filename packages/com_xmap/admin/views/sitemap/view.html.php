@@ -14,7 +14,7 @@ jimport('joomla.application.component.view');
  * @package	Xmap
  * @subpackage	com_xmap
  */
-class XmapViewSitemap extends JView
+class XmapViewSitemap extends JViewLegacy
 {
 
     /**

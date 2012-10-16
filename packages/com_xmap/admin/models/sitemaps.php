@@ -70,7 +70,7 @@ class XmapModelSitemaps extends JModelList
 
         $published = $this->getUserStateFromRequest($this->context.'.filter.published', 'filter_published', '');
         $this->setState('filter.published', $published);
-        
+
         // List state information.
         parent::populateState('a.title', 'asc');
     }
@@ -112,7 +112,8 @@ class XmapModelSitemaps extends JModelList
         }
 
         // Add the list ordering clause.
-        $query->order($this->_db->getEscaped($this->getState('list.ordering', 'a.title')) . ' ' . $this->_db->getEscaped($this->getState('list.direction', 'ASC')));
+
+        $query->order($db->quote($this->getState('list.ordering', 'a.title')) . ' ' . $db->quote($this->getState('list.direction', 'ASC')));
 
         //echo nl2br(str_replace('#__','jos_',$query));
         return $query;

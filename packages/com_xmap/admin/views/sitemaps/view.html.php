@@ -16,7 +16,7 @@ jimport('joomla.application.component.view');
  * @subpackage  com_xmap
  * @since	       2.0
  */
-class XmapViewSitemaps extends JView
+class XmapViewSitemaps extends JViewLegacy
 {
 	protected $state;
 	protected $items;
