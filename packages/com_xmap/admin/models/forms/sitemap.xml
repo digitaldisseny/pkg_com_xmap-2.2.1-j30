@@ -58,7 +58,7 @@
             type="list"
             label="JSTATUS"
             description="JFIELD_PUBLISHED_DESC"
-            class="inputbox"
+            class="inputbox span12 small"
             size="1"
             default="1">
             <option

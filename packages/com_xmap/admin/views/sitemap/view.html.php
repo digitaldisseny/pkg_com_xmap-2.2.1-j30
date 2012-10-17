@@ -8,8 +8,6 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-
 /**
  * @package	Xmap
  * @subpackage	com_xmap
@@ -39,9 +37,8 @@ class XmapViewSitemap extends JViewLegacy
         // Convert dates from UTC
         $offset = $app->getCfg('offset');
         if (intval($item->created)) {
-            $item->created = JHtml::date($item->created, '%Y-%m-%d %H-%M-%S', $offset);
+            $item->created = JHtml::date($item->created, 'Y-m-d H-i-s', $offset);
         }
-
 
         $form->bind($item);
 
@@ -49,9 +46,8 @@ class XmapViewSitemap extends JViewLegacy
         $this->assignRef('item', $item);
         $this->assignRef('form', $form);
 
-        $this->_setToolbar();
+        $this->addToolbar();
         parent::display($tpl);
-        JRequest::setVar('hidemainmenu', true);
     }
 
     /**
@@ -169,22 +165,22 @@ class XmapViewSitemap extends JViewLegacy
      *
      * @access	private
      */
-    function _setToolbar()
+    function addToolbar()
     {
+    	JFactory::getApplication()->input->set('hidemainmenu', true);
         $user = JFactory::getUser();
         $isNew = ($this->item->id == 0);
 
         JToolBarHelper::title(JText::_('XMAP_PAGE_' . ($isNew ? 'ADD_SITEMAP' : 'EDIT_SITEMAP')), 'article-add.png');
 
+        JToolBarHelper::apply('sitemap.apply');
+        JToolBarHelper::save('sitemap.save');
+        JToolbarHelper::save2new('sitemap.save2new');
         // If an existing item, can save to a copy.
         if (!$isNew) {
-            JToolBarHelper::custom('sitemap.save2copy', 'copy.png', 'copy_f2.png', 'JTOOLBAR_SAVE_AS_COPY', false);
+        	JToolbarHelper::save2copy('sitemap.save2copy');
         }
-
-        JToolBarHelper::custom('sitemap.save2new', 'new.png', 'new_f2.png', 'JTOOLBAR_SAVE_AND_NEW', false);
-        JToolBarHelper::save('sitemap.save', 'JTOOLBAR_SAVE');
-        JToolBarHelper::apply('sitemap.apply', 'JTOOLBAR_APPLY');
-        JToolBarHelper::cancel('sitemap.cancel', 'JTOOLBAR_CANCEL');
+        JToolBarHelper::cancel('sitemap.cancel', 'JTOOLBAR_CLOSE');
         JToolBarHelper::divider();
         JToolBarHelper::help('screen.xmap.sitemap');
     }

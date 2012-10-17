@@ -54,9 +54,6 @@ class XmapController extends JControllerLegacy
             $view->assignRef('document', $document);
 
             $view->display();
-
-            // Load the submenu.
-            XmapHelper::addSubmenu($vName);
         }
     }
 

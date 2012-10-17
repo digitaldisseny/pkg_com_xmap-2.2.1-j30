@@ -43,6 +43,10 @@ class XmapViewSitemaps extends JViewLegacy
 		}
 
 		$this->_setToolbar();
+
+		// Load the submenu.
+		XmapHelper::addSubmenu('sitemaps');
+
 		parent::display($tpl);
 	}
 
