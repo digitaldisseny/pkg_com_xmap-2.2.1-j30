@@ -27,23 +27,23 @@ class xmap_com_virtuemart
     {
         $link_query = parse_url($node->link);
         parse_str(html_entity_decode($link_query['query']), $link_vars);
-        $catid = JArrayHelper::getValue($link_vars, 'virtuemart_category_id', 0);
+        $catid  = JArrayHelper::getValue($link_vars, 'virtuemart_category_id', 0);
         $prodid = JArrayHelper::getValue($link_vars, 'virtuemart_product_id', 0);
         if (!$catid) {
-            $menu = & JSite::getMenu();
+            $menu       = JSite::getMenu();
             $menuParams = $menu->getParams($node->id);
-            $catid = $menuParams->get('virtuemart_category_id', 0);
+            $catid      = $menuParams->get('virtuemart_category_id', 0);
         }
         if (!$prodid) {
-            $menu = & JSite::getMenu();
+            $menu       = JSite::getMenu();
             $menuParams = $menu->getParams($node->id);
-            $prodid = $menuParams->get('virtuemart_product_id', 0);
+            $prodid     = $menuParams->get('virtuemart_product_id', 0);
         }
         if ($prodid && $catid) {
-            $node->uid = 'com_virtuemartc' . $catid . 'p' . $prodid;
+            $node->uid        = 'com_virtuemartc' . $catid . 'p' . $prodid;
             $node->expandible = false;
         } elseif ($catid) {
-            $node->uid = 'com_virtuemartc' . $catid;
+            $node->uid        = 'com_virtuemartc' . $catid;
             $node->expandible = true;
         }
     }
@@ -71,29 +71,29 @@ class xmap_com_virtuemart
         $include_products = ( $include_products == 1
                 || ( $include_products == 2 && $xmap->view == 'xml')
                 || ( $include_products == 3 && $xmap->view == 'html'));
-        $params['include_products'] = $include_products;
 
-        $params['include_product_images'] = (JArrayHelper::getValue($params, 'include_product_images', 1) && $xmap->view == 'xml');
+        $params['include_products']          = $include_products;
+        $params['include_product_images']    = (JArrayHelper::getValue($params, 'include_product_images', 1) && $xmap->view == 'xml');
         $params['product_image_license_url'] = trim(JArrayHelper::getValue($params, 'product_image_license_url', ''));
 
-        $priority = JArrayHelper::getValue($params, 'cat_priority', $parent->priority);
+        $priority   = JArrayHelper::getValue($params, 'cat_priority', $parent->priority);
         $changefreq = JArrayHelper::getValue($params, 'cat_changefreq', $parent->changefreq);
         if ($priority == '-1')
             $priority = $parent->priority;
         if ($changefreq == '-1')
             $changefreq = $parent->changefreq;
 
-        $params['cat_priority'] = $priority;
+        $params['cat_priority']   = $priority;
         $params['cat_changefreq'] = $changefreq;
 
-        $priority = JArrayHelper::getValue($params, 'prod_priority', $parent->priority);
+        $priority   = JArrayHelper::getValue($params, 'prod_priority', $parent->priority);
         $changefreq = JArrayHelper::getValue($params, 'prod_changefreq', $parent->changefreq);
         if ($priority == '-1')
             $priority = $parent->priority;
         if ($changefreq == '-1')
             $changefreq = $parent->changefreq;
 
-        $params['prod_priority'] = $priority;
+        $params['prod_priority']   = $priority;
         $params['prod_changefreq'] = $changefreq;
 
 
@@ -111,21 +111,20 @@ class xmap_com_virtuemart
         }
 
         $vendorId = 1;
-        $cache = & JFactory::getCache('com_virtuemart','callback');
+        $cache    = JFactory::getCache('com_virtuemart','callback');
         $children = $cache->call( array( 'VirtueMartModelCategory', 'getChildCategoryList' ),$vendorId, $catid );
 
         $xmap->changeLevel(1);
         foreach ($children as $row) {
             $node = new stdclass;
-
-            $node->id = $parent->id;
-            $node->uid = $parent->uid . 'c' . $row->virtuemart_category_id;
+            $node->id         = $parent->id;
+            $node->uid        = $parent->uid . 'c' . $row->virtuemart_category_id;
             $node->browserNav = $parent->browserNav;
-            $node->name = stripslashes($row->category_name);
-            $node->priority = $params['cat_priority'];
+            $node->name       = stripslashes($row->category_name);
+            $node->priority   = $params['cat_priority'];
             $node->changefreq = $params['cat_changefreq'];
             $node->expandible = true;
-            $node->link = 'index.php?option=com_virtuemart&amp;view=category&amp;virtuemart_category_id=' . $row->virtuemart_category_id . '&amp;Itemid='.$parent->id;
+            $node->link       = 'index.php?option=com_virtuemart&amp;view=category&amp;virtuemart_category_id=' . $row->virtuemart_category_id . '&amp;Itemid='.$parent->id;
             if ($xmap->printNode($node) !== FALSE) {
                 xmap_com_virtuemart::getCategoryTree($xmap, $parent, $params, $row->virtuemart_category_id);
             }
@@ -142,21 +141,23 @@ class xmap_com_virtuemart
             $xmap->changeLevel(1);
             foreach ($products as $row) {
                 $node = new stdclass;
-                $node->id = $parent->id;
-                $node->uid = $parent->uid . 'c' . $row->virtuemart_category_id . 'p' . $row->virtuemart_product_id;
+                $node->id         = $parent->id;
+                $node->uid        = $parent->uid . 'c' . $row->virtuemart_category_id . 'p' . $row->virtuemart_product_id;
                 $node->browserNav = $parent->browserNav;
-                $node->priority = $params['prod_priority'];
+                $node->priority   = $params['prod_priority'];
                 $node->changefreq = $params['prod_changefreq'];
-                $node->name = $row->product_name;
-                $node->modified = strtotime($row->modified_on);
+                $node->name       = $row->product_name;
+                $node->modified   = strtotime($row->modified_on);
                 $node->expandible = false;
-                $node->link = 'index.php?option=com_virtuemart&amp;view=productdetails&amp;virtuemart_product_id=' . $row->virtuemart_product_id.'&amp;virtuemart_category_id=' . $row->virtuemart_category_id . '&amp;Itemid='.$parent->id;
+                $node->link       = 'index.php?option=com_virtuemart&amp;view=productdetails&amp;virtuemart_product_id=' 
+                                    . $row->virtuemart_product_id.'&amp;virtuemart_category_id=' . $row->virtuemart_category_id 
+                                    . '&amp;Itemid='.$parent->id;
                 if ($params['include_product_images']) {
                     foreach ($row->images as $image) {
                         if (isset($image->file_url)) {
                             $imagenode = new stdClass;
-                            $imagenode->src = $urlBase . $image->file_url_thumb;
-                            $imagenode->title = $row->product_name;
+                            $imagenode->src     = $urlBase . $image->file_url_thumb;
+                            $imagenode->title   = $row->product_name;
                             $imagenode->license = $params['product_image_license_url'];
                             $node->images[] = $imagenode;
                         }
@@ -173,15 +174,15 @@ class xmap_com_virtuemart
         if (self::$initialized) return;
         
         if (!class_exists( 'VmConfig' )) {
-            require(JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_virtuemart'.DS.'helpers'.DS.'config.php');
+            require(JPATH_ADMINISTRATOR . '/components/com_virtuemart/helpers/config.php');
             VmConfig::loadConfig();
         }
-        JTable::addIncludePath(JPATH_VM_ADMINISTRATOR . DS . 'tables');
+        JTable::addIncludePath(JPATH_VM_ADMINISTRATOR . '/tables');
 
-        if (!class_exists('VirtueMartModelCategory')) require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'category.php');
+        if (!class_exists('VirtueMartModelCategory')) require(JPATH_VM_ADMINISTRATOR . '/models/category.php');
         self::$categoryModel = new VirtueMartModelCategory();
         
-        if (!class_exists('VirtueMartModelProduct')) require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'product.php');
+        if (!class_exists('VirtueMartModelProduct')) require(JPATH_VM_ADMINISTRATOR . 'models/product.php');
         self::$productModel = new VirtueMartModelProduct();
     }
 
