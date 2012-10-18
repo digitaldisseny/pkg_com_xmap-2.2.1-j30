@@ -23,7 +23,11 @@ class xmap_com_sobipro {
         $sid = JArrayHelper::getValue($link_vars,'sid',0);
 
         $db = JFactory::getDbo();
-        $db->setQuery('SELECT * FROM `#__sobipro_object` where id='.(int)$sid);
+        $query = $db->getQuery(true);
+        $query->select("*");
+        $query->from("`#__sobipro_object`");
+        $query->where("id=" . (int) $sid);
+        $db->setQuery($query);
         $row = $db->loadObject();
 
         $node->uid = 'com_sobiproo'.$sid;
@@ -49,7 +53,11 @@ class xmap_com_sobipro {
         $sid =JArrayHelper::getValue($link_vars,'sid',1);
 
         $db = JFactory::getDbo();
-        $db->setQuery('SELECT * FROM `#__sobipro_object` where id='.(int)$sid);
+        $query = $db->getQuery(true);
+        $query->select("*");
+        $query->from("`#__sobipro_object`");
+        $query->where("id=" . (int) $sid);
+        $db->setQuery($query);
         $object = $db->loadObject();
 
         if ($object->oType == 'entry') {
@@ -62,7 +70,7 @@ class xmap_com_sobipro {
         self::$sectionConfig = self::getSectionConfig($sectionId);
 
 
-        $include_entries =JArrayHelper::getValue($params,'include_entries',1);
+        $include_entries = JArrayHelper::getValue($params,'include_entries',1);
         $include_entries = ( $include_entries == 1
                             || ( $include_entries == 2 && $xmap->view == 'xml')
                     || ( $include_entries == 3 && $xmap->view == 'html')
@@ -76,7 +84,7 @@ class xmap_com_sobipro {
         if ($changefreq  == '-1')
             $changefreq = $parent->changefreq;
 
-        $params['cat_priority'] = $priority;
+        $params['cat_priority']   = $priority;
         $params['cat_changefreq'] = $changefreq;
 
         $priority =JArrayHelper::getValue($params,'entry_priority',$parent->priority);
@@ -86,11 +94,11 @@ class xmap_com_sobipro {
         if ($changefreq  == '-1')
             $changefreq = $parent->changefreq;
 
-        $params['entry_priority'] = $priority;
+        $params['entry_priority']   = $priority;
         $params['entry_changefreq'] = $changefreq;
 
                 $date = JFactory::getDate();
-                $params['now'] = $date->toMySql();
+                $params['now'] = $date->toSql();
 
         if ( $include_entries ) {
             $ordering = JArrayHelper::getValue($params,'entries_order','b.position');
@@ -102,9 +110,8 @@ class xmap_com_sobipro {
                 $orderdir = 'ASC';
             }
             $params['ordering'] = $ordering. ' '. $orderdir;
-
-            $params['limit'] = '';
-            $params['days'] = '';
+            $params['limit']    = '';
+            $params['days']     = '';
             $limit = JArrayHelper::getValue($params,'max_entries','');
             if ( intval($limit) )
                 $params['limit'] = ' LIMIT '.$limit;
@@ -120,18 +127,17 @@ class xmap_com_sobipro {
 
     /** SobiPro support */
     function getCategoryTree( $xmap, $parent, $sid, &$params ) {
-        $database =& JFactory::getDBO();
-
-        $query  =
-         "SELECT a.id,a.nid, a.name, b.pid as pid "
-        ."\n FROM #__sobipro_object AS a, #__sobipro_relations AS b "
-        ."\n WHERE a.parent=$sid"
-        ."   AND a.oType='category'"
-        ."   AND b.oType=a.oType"
-            ."   AND a.state=1 "
-            ."   AND a.approved=1 "
-        ."\n AND a.id=b.id "
-        ."\n ORDER BY b.position ASC";
+        $database = JFactory::getDBO();
+        $query = $database->getQuery(true);
+        $query->select("a.id,a.nid, a.name, b.pid as pid");
+        $query->from("#__sobipro_object AS a, #__sobipro_relations AS b");
+        $query->where("a.parent=" . $sid);
+        $query->where("a.oType='category'");
+        $query->where("b.oType=a.oType");
+        $query->where("a.state=1");
+        $query->where("a.approved=1");
+        $query->where("a.id=b.id");
+        $query->order("b.position ASC");
 
         $database->setQuery( $query );
         $rows = $database->loadObjectList();
@@ -140,23 +146,45 @@ class xmap_com_sobipro {
         $xmap->changeLevel(1);
         foreach($rows as $row) {
             $node = new stdclass;
-            $node->id = $parent->id;
-            $node->uid = 'com_sobiproc'.$row->id; // Unique ID
+            $node->id         = $parent->id;
+            $node->uid        = 'com_sobiproc'.$row->id; // Unique ID
             $node->browserNav = $parent->browserNav;
-            $node->name = html_entity_decode($row->name);
-            $node->modified = $modified;
-            #$node->link = 'index.php?option=com_sobipro&sid='.$row->id.':'.trim( SPLang::urlSafe( $row->name ) ).'&Itemid='.$parent->id;
-            $node->link = SPJoomlaMainFrame::url( array('sid' => $row->id, 'title' => $row->name), false, false );
-            $node->priority = $params['cat_priority'];
+            $node->name       = html_entity_decode($row->name);
+            $node->modified   = $modified;
+            #$node->link      = 'index.php?option=com_sobipro&sid='.$row->id.':'.trim( SPLang::urlSafe( $row->name ) ).'&Itemid='.$parent->id;
+            $node->link       = SPJoomlaMainFrame::url( array('sid' => $row->id, 'title' => $row->name), false, false );
+            $node->priority   = $params['cat_priority'];
             $node->changefreq = $params['cat_changefreq'];
             $node->expandible = true;
-            $node->secure = $parent->secure;
+            $node->secure     = $parent->secure;
             if ( $xmap->printNode($node) !== FALSE ) {
                 xmap_com_sobipro::getCategoryTree($xmap, $parent, $row->id, $params);
             }
         }
 
         if ( $params['include_entries'] ) {
+            $database = JFactory::getDBO();
+            /**
+             * Disabled because I don't know the format of $params['days'] & $params['limit']
+             */
+            /*
+            $query = $database->getQuery(true);
+            $query->select("a.id, c.baseData as name,UNIX_TIMESTAMP(a.updatedTime) as modified,UNIX_TIMESTAMP(b.validSince) as publish_up, b.pid as catid");
+            $query->from("#__sobipro_object AS a, #__sobipro_relations AS b, #__sobipro_field_data c");
+            $query->where("a.state=1");
+            $query->where("a.id=b.id");
+            $query->where("b.oType = 'entry'");
+            $query->where("b.pid =" . $sid);
+            $query->where("a.approved=1");
+            $query->where("b.validUntil<=" . $database->quote("{" . $params['now'] . "}"));
+            $query->where("(b.validSince>=" . $database->quote("{" . $params['now'] . "}") . " or b.validUntil='0000-00-00 00:00:00' )");
+            $query->where("a.id=c.sid AND c.fid=" . self::$sectionConfig['name_field']->sValue);
+            $query->where("c.section=" . self::$sectionConfig['name_field']->section);
+            // $params['days']
+            $query->order($params['ordering']);
+            // $params['limit']
+             */
+            
             $query  =
              "SELECT a.id, c.baseData as name,UNIX_TIMESTAMP(a.updatedTime) as modified,UNIX_TIMESTAMP(b.validSince) as publish_up, b.pid as catid  "
             ."\n FROM #__sobipro_object AS a, #__sobipro_relations AS b, #__sobipro_field_data c"
@@ -179,17 +207,17 @@ class xmap_com_sobipro {
 #            echo str_replace('#__','jos_',$database->getQuery( ));
             foreach($rows as $row) {
                 $node = new stdclass;
-                $node->id = $parent->id;
-                $node->uid = 'com_sobiproe'.$row->id; // Unique ID
+                $node->id         = $parent->id;
+                $node->uid        = 'com_sobiproe'.$row->id; // Unique ID
                 $node->browserNav = $parent->browserNav;
-                $node->name = html_entity_decode($row->name);
-                $node->modified = $row->modified? $row->modified : $row->publish_up;
-                $node->priority = $params['entry_priority'];
+                $node->name       = html_entity_decode($row->name);
+                $node->modified   = $row->modified? $row->modified : $row->publish_up;
+                $node->priority   = $params['entry_priority'];
                 $node->changefreq = $params['entry_changefreq'];
                 $node->expandible = false;
-                $node->secure = $parent->secure;
-                # $node->link = 'index.php?option=com_sobipro&pid='.$row->catid . '&sid=' . $row->id.':'.trim( SPLang::urlSafe( $row->name )).'&Itemid='.$parent->id;
-                $node->link = SPJoomlaMainFrame::url( array('sid' => $row->id, 'pid' => $row->catid, 'title' => $row->name), false, false );
+                $node->secure     = $parent->secure;
+                # $node->link     = 'index.php?option=com_sobipro&pid='.$row->catid . '&sid=' . $row->id.':'.trim( SPLang::urlSafe( $row->name )).'&Itemid='.$parent->id;
+                $node->link       = SPJoomlaMainFrame::url( array('sid' => $row->id, 'pid' => $row->catid, 'title' => $row->name), false, false );
                 $xmap->printNode($node);
             }
 
@@ -242,7 +270,11 @@ class xmap_com_sobipro {
     static protected function findCategorySection($sid)
     {
         $db = JFactory::getDbo();
-        $db->setQuery('SELECT id,parent,oType FROM `#__sobipro_object` where id='.(int)$sid);
+        $query = $db->getQuery(true);
+        $query->select("id,parent,oType");
+        $query->from("`#__sobipro_object`");
+        $query->where("id=" . (int) $sid);
+        $db->setQuery($query);
         $row = $db->loadObject();
         if ($row->oType == 'section') {
             return $row->id;
