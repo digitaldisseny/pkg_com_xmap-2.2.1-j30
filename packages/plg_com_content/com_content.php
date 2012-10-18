@@ -35,6 +35,7 @@ class xmap_com_content
     static function prepareMenuItem($node, &$params)
     {
         $db = JFactory::getDbo();
+        $query = $db->getQuery(true);
         $link_query = parse_url($node->link);
         if (!isset($link_query['query'])) {
             return;
@@ -64,13 +65,14 @@ class xmap_com_content
             case 'article':
                 $node->uid = 'com_contenta' . $id;
                 $node->expandible = false;
-
-                $query = 'SELECT UNIX_TIMESTAMP(a.created) as created,
-                                 UNIX_TIMESTAMP(a.modified) as modified '
-                       .(($params['add_images'] || $params['add_pagebreaks'])? ',`introtext`, `fulltext` ' : '')
-                       . 'FROM `#__content` as a
-                          WHERE id='.intval($id).'
-                         ';
+                $query->select("UNIX_TIMESTAMP(a.created) as created");
+                $query->select("UNIX_TIMESTAMP(a.modified) as modified");
+                if ($params['add_images'] || $params['add_pagebreaks'])
+                {
+                    $query->select("`introtext`, `fulltext`");
+                }
+                $query->from("`#__content` as a");
+                $query->where("id=" . (int) $id);
                 $db->setQuery($query);
                 if (($row = $db->loadObject()) != NULL) {
                     $node->modified = ($row->modified? $row->modified : $row->created);
@@ -220,7 +222,11 @@ class xmap_com_content
                 break;
             case 'article':
                 $db = JFactory::getDBO();
-                $db->setQuery("SELECT UNIX_TIMESTAMP(modified) modified, UNIX_TIMESTAMP(created) created FROM #__content WHERE id=" . $id);
+                $query = $db->getQuery(true);
+                $query->select("UNIX_TIMESTAMP(modified) AS modified, UNIX_TIMESTAMP(created) AS created");
+                $query->from("#__content");
+                $query->where("id=" . (int) $id);
+                $db->setQuery($query);
                 $item = $db->loadObject();
                 if ($item->modified) {
                     $item->modified = $item->created;
@@ -244,23 +250,26 @@ class xmap_com_content
     static function expandCategory($xmap, $parent, $catid, &$params, $itemid)
     {
         $db = JFactory::getDBO();
-
-        $where = array('a.parent_id = ' . $catid . ' AND a.published = 1 AND a.extension=\'com_content\'');
+        $query = $db->getQuery(true);
+        $query->select("a.id, a.title, a.alias, a.access, a.path AS route");
+        $query->select("UNIX_TIMESTAMP(a.created_time) AS created, UNIX_TIMESTAMP(a.modified_time) AS modified");
+        $query->from("#__categories AS a");
+        $query->where("a.parent_id = " . (int) $catid);
+        $query->where("a.published = 1");
+        $query->where("a.extension=" . $db->quote('com_content'));
 
         if ($params['language_filter'] ) {
-            $where[] = 'a.language in ('.$db->quote(JFactory::getLanguage()->getTag()).','.$db->quote('*').')';
+            $query->where("a.language in (" . $db->quote(JFactory::getLanguage()->getTag()) . ',' . $db->quote('*') . ")");
         }
 
         if (!$params['show_unauth']) {
-            $where[] = 'a.access IN (' . $params['groups'] . ') ';
+            $query->where("a.access IN (" . $params['groups'] . ")");
         }
 
-        $orderby = 'a.lft';
-        $query = 'SELECT a.id, a.title, a.alias, a.access, a.path AS route, '
-               . 'UNIX_TIMESTAMP(a.created_time) created, UNIX_TIMESTAMP(a.modified_time) modified '
-               . 'FROM #__categories AS a '
-               . 'WHERE '. implode(' AND ',$where)
-               . ( $xmap->view != 'xml' ? "\n ORDER BY " . $orderby . "" : '' );
+        if ($xmap->view != 'xml')
+        {
+            $query->order("a.lft");
+        }
 
         $db->setQuery($query);
         #echo nl2br(str_replace('#__','jos_',$db->getQuery()));exit;
