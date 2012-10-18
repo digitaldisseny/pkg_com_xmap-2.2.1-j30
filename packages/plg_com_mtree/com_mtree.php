@@ -30,17 +30,17 @@ class xmap_com_mtree
                                   ||   $xmap->view == 'navigator');
         $params['include_links'] = $include_links;
 
-        $priority = JArrayHelper::getValue($params,'cat_priority',$parent->priority);
+        $priority   = JArrayHelper::getValue($params,'cat_priority',$parent->priority);
         $changefreq = JArrayHelper::getValue($params,'cat_changefreq',$parent->changefreq);
         if ($priority  == '-1')
             $priority = $parent->priority;
         if ($changefreq  == '-1')
             $changefreq = $parent->changefreq;
 
-        $params['cat_priority'] = $priority;
+        $params['cat_priority']   = $priority;
         $params['cat_changefreq'] = $changefreq;
 
-        $priority = JArrayHelper::getValue($params,'link_priority',$parent->priority);
+        $priority   = JArrayHelper::getValue($params,'link_priority',$parent->priority);
         $changefreq = JArrayHelper::getValue($params,'link_changefreq',$parent->changefreq);
         if ($priority  == '-1')
             $priority = $parent->priority;
@@ -48,15 +48,18 @@ class xmap_com_mtree
         if ($changefreq  == '-1')
             $changefreq = $parent->changefreq;
 
-        $params['link_priority'] = $priority;
+        $params['link_priority']   = $priority;
         $params['link_changefreq'] = $changefreq;
 
         $ordering = JArrayHelper::getValue($params,'cats_order','cat_name');
         $orderdir = JArrayHelper::getValue($params,'cats_orderdir','ASC');
         if ( !in_array($ordering,array('ordering','cat_name','cat_created')) )
+        {
             $ordering = 'cat_name';
+        }            
             
-        if ( !in_array($orderdir,array('ASC','DESC')) ){
+        if ( !in_array($orderdir,array('ASC','DESC')) )
+        {
             $orderdir = 'ASC';
         }
 
@@ -66,16 +69,18 @@ class xmap_com_mtree
             $ordering = JArrayHelper::getValue($params,'links_order','ordering');
             $orderdir = JArrayHelper::getValue($params,'links_orderdir','ASC');
             if ( !in_array($ordering,array('ordering','link_name','link_modified','link_created','link_hits')) )
-                $ordering = 'ordering';
+            {
+            	$ordering = 'ordering';
+            }                
             
-            if ( !in_array($orderdir,array('ASC','DESC')) ){
+            if ( !in_array($orderdir,array('ASC','DESC')) )
+            {
                 $orderdir = 'ASC';
             }
 
-            $params['links_order'] = "`$ordering` $orderdir";
-
-            $params['limit'] = '';
-            $params['days'] = '';
+			$params['links_order'] = "`$ordering` $orderdir";
+			$params['limit']       = '';
+			$params['days']        = '';
             $limit = JArrayHelper::getValue($params,'max_links',0);
             if ( intval($limit) )
                 $params['limit'] = ' LIMIT '.intval($limit);
@@ -107,16 +112,16 @@ class xmap_com_mtree
             }
 
             $node = new stdclass;
-            $node->name = $row->cat_name;
-            $node->link = 'index.php?option=com_mtree&task=listcats&cat_id='.$row->cat_id.'&Itemid='.$parent->id;
-            $node->id = $parent->id;
-            $node->uid = $parent->uid .'c'.$row->cat_id;
-            $node->browserNav = $parent->browserNav;
-            $node->modified = $row->created;
-            $node->priority = $params['cat_priority'];
-            $node->changefreq = $params['cat_changefreq'];
-            $node->expandible = true;
-            $node->secure = $parent->secure;
+			$node->name       = $row->cat_name;
+			$node->link       = 'index.php?option=com_mtree&task=listcats&cat_id='.$row->cat_id.'&Itemid='.$parent->id;
+			$node->id         = $parent->id;
+			$node->uid        = $parent->uid .'c'.$row->cat_id;
+			$node->browserNav = $parent->browserNav;
+			$node->modified   = $row->created;
+			$node->priority   = $params['cat_priority'];
+			$node->changefreq = $params['cat_changefreq'];
+			$node->expandible = true;
+			$node->secure     = $parent->secure;
 
             if ( $xmap->printNode($node) !== FALSE) {
                 xmap_com_mtree::getMtreeCategory($xmap,$parent,$params,$row->cat_id);
@@ -144,17 +149,17 @@ class xmap_com_mtree
                 }
 
                 $node = new stdclass;
-                $node->name = $row->link_name;
-                $node->link = 'index.php?option=com_mtree&amp;task=viewlink&amp;link_id='.$row->link_id.'&Itemid='.$parent->id;
-                $node->id = $parent->id;
-                $node->uid = $parent->uid.'l'.$row->link_id;
-                $node->browserNav = $parent->browserNav;
-                $node->modified = ($row->modified? $row->modified : $row->created);
-                $node->priority = $params['link_priority'];
-                $node->changefreq = $params['link_changefreq'];
-                $node->expandible = false;
-                $node->secure = $parent->secure;
-                $xmap->printNode($node);
+				$node->name       = $row->link_name;
+				$node->link       = 'index.php?option=com_mtree&amp;task=viewlink&amp;link_id='.$row->link_id.'&Itemid='.$parent->id;
+				$node->id         = $parent->id;
+				$node->uid        = $parent->uid.'l'.$row->link_id;
+				$node->browserNav = $parent->browserNav;
+				$node->modified   = ($row->modified? $row->modified : $row->created);
+				$node->priority   = $params['link_priority'];
+				$node->changefreq = $params['link_changefreq'];
+				$node->expandible = false;
+				$node->secure     = $parent->secure;
+				$xmap->printNode($node);
             }
         }
         $xmap->changeLevel(-1);
