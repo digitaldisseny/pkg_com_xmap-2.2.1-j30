@@ -7,7 +7,7 @@
  */
 defined('_JEXEC') or die;
 
-jimport('joomla.html.html');
+JLoader::import('joomla.html.html');
 require_once JPATH_LIBRARIES . '/joomla/form/fields/list.php';
 
 /**
@@ -110,6 +110,7 @@ class JFormFieldXmapmenus extends JFormFieldList
         }
 
         $doc = JFactory::getDocument();
+        
         $doc->addScriptDeclaration("
 		window.addEvent('domready',function(){
 			new Sortables(\$('ul_" . $this->inputId . "'),{
@@ -130,15 +131,12 @@ class JFormFieldXmapmenus extends JFormFieldList
         $options = (array) $this->_getOptions();
         $return = '<ul id="ul_' . $this->inputId . '" class="ul_sortable">';
 
-        // Create a regular list.
-        $i = 0;
-
         //Lets show the enabled menus first
         $this->currentItems = array_keys($value);
         // Sort the menu options
         uasort($options, array($this, 'myCompare'));
 
-        foreach ($options as $option) {
+        foreach ($options as $i => $option) {
             $prioritiesName = preg_replace('/(jform\[[^\]]+)(\].*)/', '$1_priority$2', $this->name);
             $changefreqName = preg_replace('/(jform\[[^\]]+)(\].*)/', '$1_changefreq$2', $this->name);
             $selected = (isset($value[$option->value]) ? ' checked="checked"' : '');

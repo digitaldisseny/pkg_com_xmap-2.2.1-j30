@@ -29,7 +29,8 @@ abstract class JHtmlXmap
 		for ($i=0.1; $i<=1;$i+=0.1) {
 			$options[] = JHTML::_('select.option',$i,$i);;
 		}
-		return JHtml::_('select.genericlist', $options,$name, null, 'value','text', $value);
+		$idTag = $name . '_' . $j;
+		return JHtml::_('select.genericlist', $options,$name, null, 'value','text', $value, $idTag);
 	}
 
 	/**
@@ -46,7 +47,8 @@ abstract class JHtmlXmap
 		$options[] = JHTML::_('select.option','monthly','monthly');
 		$options[] = JHTML::_('select.option','yearly','yearly');
 		$options[] = JHTML::_('select.option','never','never');
-		return JHtml::_('select.genericlist', $options,$name, null, 'value','text', $value);
+		$idTag = $name . '_' . $j;
+		return JHtml::_('select.genericlist', $options,$name, null, 'value','text', $value, $idTag);
 	}
 
 }
