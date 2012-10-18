@@ -134,6 +134,7 @@ class xmap_com_kunena {
     function getCategoryTree($xmap, $parent, &$params, $parentCat)
     {
         $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
 
         // Load categories
         if (self::getKunenaMajorVersion() >= '2.0') {
@@ -153,7 +154,11 @@ class xmap_com_kunena {
                 $session = KunenaFactory::getSession();
                 $session->updateAllowedForums();
                 $allowed = $session->allowed;
-                $query = "SELECT id, name FROM `#__kunena_categories` WHERE parent={$parentCat} AND id IN ({$allowed}) ORDER BY ordering";
+                $query->select("id, name");
+                $query->from("`#__kunena_categories`");
+                $query->where("parent=" . $parentCat);
+                $query->where("id IN (" . $allowed . ")");
+                $query->order("ordering");
             } else {
                 // Kunena 1.0+
                 $query = "SELECT id, name FROM `{$params['table_prefix']}_categories` WHERE parent={$parentCat} AND published=1 AND pub_access=0 ORDER BY ordering";
@@ -247,7 +252,7 @@ class xmap_com_kunena {
     private static function loadKunenaApi()
     {
         if (!defined('KUNENA_LOADED')) {
-            jimport ( 'joomla.application.component.helper' );
+            JLoader::import ( 'joomla.application.component.helper' );
             // Check if Kunena component is installed/enabled
             if (! JComponentHelper::isEnabled ( 'com_kunena', true )) {
                     return false;
